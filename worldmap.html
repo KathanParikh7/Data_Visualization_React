@@ -1,0 +1,114 @@
+<!doctype html>
+<html>
+<head>
+    
+    <title>DV Project ::World Map</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="Main.css">
+    
+     <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.8/d3.min.js" type="text/JavaScript"></script>
+    <style>
+        svg {
+                    display: block;
+                    margin: auto;
+            }
+        </style>
+    
+</head>
+        
+<body>
+    
+  
+    
+    <nav>
+    <ul>
+       
+        <li><a href="Graph.html">Graph</a></li>
+        <li><a href="BarGraph.html">Bar Graph</a></li>
+        <li><a href="Worldmap.html">World Map</a></li>
+    </ul>
+    </nav>
+    
+    <br>
+    <br>
+    
+    <div id="viz">
+      <svg style="width: 900px;height: 750px;"></svg>                                     
+    </div>
+   <div class="btn"> 
+      <button class="mostpopulous" onclick="most()">Most Populous Country</button>
+      <button class="leastpopulous" onclick="least()">Least Populous Country</button>             
+   </div>
+     <script>
+        let mostpopulous = ["China"];
+        let leastpopulous = ["Russia"];
+         
+        var PromiseWrapper = (func, d) => new Promise(resolve => func(d, (p) => resolve(p)));
+         
+        Promise
+            .all([
+              PromiseWrapper(d3.json, "./world.geojson"), 
+              PromiseWrapper(d3.csv, "./final.csv")
+            ])
+            .then(resolve => {
+              createMap(resolve[0], resolve[1]);
+            });
+        
+         function createMap(countries, worldCup) {
+          worldCup.forEach(data => {
+            mostpopulous.push(data.most);
+            leastpopulous.push(data.least);
+              
+          });
+             
+        var projection = d3.geoMercator()
+          .scale(120)
+          .translate([450, 350]) 
+          .center([20,0]);
+             
+        var geoPath = d3.geoPath().projection(projection);
+             
+        d3.select("svg")
+          .selectAll("path")
+          .data(countries.features)
+          .enter()                  
+          .append("path")
+          .attr("d",geoPath)
+          .attr("class", "country")
+          .style("fill", "white")
+          .style("stroke", "grey");
+          
+      }
+         
+    function resetColor() {  
+              d3.select("svg")             
+                .selectAll("path.country")
+                .style("fill", "grey");
+          }
+         
+    function most() {
+              
+              resetColor();                      
+              d3.select("svg")
+                .selectAll("path.country")
+                .filter (function(p,q) {
+                  console.log(p,q);
+                  return mostpopulous.indexOf(p.properties.name) > -1})
+                .style("fill", "yellow");
+      } 
+         
+    function least() {
+              resetColor();
+              d3.select("svg")   
+                .selectAll("path.country")
+                .filter (function(p,q) {
+                    console.log(p,q);
+                    return leastpopulous.indexOf(p.properties.name) > -1})
+                .style("fill", "blue");
+      }
+         
+        </script>
+    </body>
+</html>

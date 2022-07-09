@@ -1,0 +1,115 @@
+<!doctype html>
+<html>
+<head>
+    
+        <title>DV Project :: Graph</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" type="text/css" href="Main.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.8/d3.min.js" type="text/JavaScript"></script>    
+    
+        <style>
+        svg {
+                    display: block;
+                    margin: auto;
+            }
+        </style>
+    </head>
+    
+    <body>
+    
+    <nav>
+    <ul>
+       
+        <li><a href="Graph.html">Graph</a></li>
+        <li><a href="BarGraph.html">Bar Graph</a></li>
+        <li><a href="Worldmap.html">World Map</a></li>
+    </ul>
+    </nav>
+    
+    <br>
+    <br>
+        
+        <div>
+        <svg style="width:600px; height:600px; border:5px black solid;"></svg>
+        </div>
+        
+        <script>
+            
+            /* GRAPH DATA */
+            
+            d3.csv("final.csv", scatterplot);
+            
+            function scatterplot(data){
+                
+                var pos = d3.extent(data, d => +d.pos)
+                var value = d3.extent(data, d => +d.value)
+                
+                var xScale = d3.scaleLinear().domain(pos).range([20,500]);
+                var yScale = d3.scaleLinear().domain(value).range([500,20]);
+                
+                var yAxis = d3.axisRight().scale(yScale).tickSize(500).ticks(15);
+                
+                d3.select("svg")
+                    .append("g")
+                    .attr("transform", "translate(0,0)")
+                    .attr("id", "yAxisG")
+                    .call(yAxis)
+                
+                var xAxis = d3.axisBottom().scale(xScale).tickSize(500).ticks(10);
+                
+                d3.select("svg")
+                    .append("g")
+                    .attr("transform", "translate(0,0)")
+                    .attr("id", "xAxisG")
+                    .call(xAxis)
+                
+                d3.select("svg")
+                    .selectAll("circle")
+                    .data(data)
+                    .enter()
+                    .append("circle")
+                    .attr("class", "errand")
+                    .attr("r", 5)
+                    .attr("cx", d => xScale(d.pos))
+                    .attr("cy",d => yScale(d.value))
+                    .style("fill", "grey")
+                    .on("mouseover", highlightRegion)
+                    .on("mouseout", highlightOut);
+                            
+            };
+            
+            function circleClick(data){
+                d3.select("svg")
+                    .selectAll("circle")
+                    .attr("r", 20)
+                
+                d3.select(this)
+                    .transition()
+                    .attr("r", d => (d.value) * 100)
+                
+            };
+            
+            function highlightRegion(d){
+                d3.select(this)
+                    .attr("r", 10)
+                    .style("fill", "grey")
+                    .style("stroke", "black")
+                    .style("stroke-width", "2px");
+                
+            };
+            
+            function highlightOut(d){
+                d3.select(this)
+                    .attr("r",7)
+                    .style("fill","#111")
+                    .style("stroke","white")
+                    .style("stroke-width","1px");
+            };
+                    
+        </script>
+        
+  
+        
+    </body>
+</html>
